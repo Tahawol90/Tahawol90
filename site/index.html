@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحوّل ٩٠</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#FBF9F4; --surface:#FFFFFF; --surface2:#F2ECDD;
+    --text:#2B2A25; --muted:#8B8477; --blue:#1C84BE; --orange:#A6752A; --border:#E6DFCC;
+    --pdf-bg:#FFFFFF; --pdf-ink:#2B2A25; --pdf-muted:#8B8477;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;min-height:100vh;}
+  h1,h2,h3,.num{font-family:'Almarai',sans-serif;}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 20px 80px;}
+
+  .ribbon{display:flex;gap:4px;margin-bottom:28px;}
+  .seg{flex:1;height:6px;border-radius:3px;background:var(--surface2);transition:background .4s ease;}
+  .seg.on{background:var(--blue);}
+  .ribbon-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;}
+
+  header{margin-bottom:20px;}
+  header .eyebrow{color:var(--orange);font-size:13px;font-weight:700;letter-spacing:.5px;margin-bottom:6px;}
+  header h1{font-size:26px;font-weight:800;margin:0 0 6px;}
+  header p{color:var(--muted);font-size:14px;margin:0;line-height:1.6;}
+
+  .step{display:none;}
+  .step.active{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+  label.qtitle{display:block;font-weight:700;font-size:15px;margin-bottom:12px;}
+  .hint{color:var(--muted);font-size:12px;margin-top:-6px;margin-bottom:12px;}
+
+  input.numinput, input.textinput{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    padding:12px 14px;border-radius:10px;font-size:16px;font-family:'Tajawal',sans-serif;}
+  input.numinput{direction:ltr;text-align:right;}
+  input.numinput:focus, input.textinput:focus{outline:2px solid var(--blue);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .opt{display:block;position:relative;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-size:14px;
+    transition:border-color .15s ease, background .15s ease;}
+  .opt input{position:absolute;opacity:0;}
+  .opt.selected{border-color:var(--blue);background:rgba(28,132,190,.12);}
+  .opt.selected::after{content:'✓';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--blue);font-weight:700;}
+
+  .btnrow{display:flex;gap:10px;margin-top:6px;}
+  button{font-family:'Tajawal',sans-serif;font-weight:700;font-size:15px;border:none;border-radius:10px;
+    padding:14px 20px;cursor:pointer;transition:transform .1s ease, opacity .15s ease;}
+  button:active{transform:scale(.98);}
+  .btn-primary{background:var(--blue);color:#fff;flex:1;}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+
+  .macros{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .macro-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 8px;text-align:center;}
+  .macro-card .num{font-size:24px;font-weight:800;color:var(--blue);}
+  .macro-card.protein .num{color:var(--orange);}
+  .macro-card .label{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  .day-preview{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+  .day-preview h3{margin:0 0 8px;font-size:15px;}
+  .day-preview ul{margin:0;padding-right:18px;color:var(--muted);font-size:13px;line-height:1.9;}
+  .day-preview a{color:var(--blue);text-decoration:none;font-weight:700;margin-right:6px;}
+
+  .day-preview.locked{position:relative;overflow:hidden;}
+  .day-preview.locked h3{display:flex;align-items:center;gap:8px;}
+  .locked-body{position:relative;}
+  .locked-body ul{filter:blur(5px);user-select:none;pointer-events:none;}
+  .lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:rgba(255,255,255,.72);border-radius:10px;font-weight:700;color:var(--blue);font-size:13px;text-align:center;}
+
+  .download{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    background:var(--orange);color:#fff;padding:16px;border-radius:12px;font-size:16px;margin-top:10px;border:none;}
+  .download:disabled{opacity:.5;}
+  footer.note{color:var(--muted);font-size:11px;text-align:center;margin-top:20px;line-height:1.8;}
+
+  /* ================= PDF PAGES (rendered off-screen, captured as images) ================= */
+  #pdfRoot{position:fixed;top:0;left:-99999px;width:794px;}
+  .pdf-page{
+    width:794px;height:1123px;background:var(--pdf-bg);color:var(--pdf-ink);
+    font-family:'Tajawal',sans-serif;position:relative;overflow:hidden;padding:56px 60px;
+    direction:rtl;
+  }
+  .pdf-ribbon{display:flex;gap:5px;margin-bottom:34px;}
+  .pdf-seg{flex:1;height:8px;border-radius:4px;background:#E7E3D8;}
+  .pdf-seg.on{background:var(--blue);}
+  .pdf-eyebrow{color:var(--orange);font-weight:700;font-size:15px;letter-spacing:.5px;margin-bottom:10px;font-family:'Almarai',sans-serif;}
+  .pdf-h1{font-family:'Almarai',sans-serif;font-weight:800;font-size:40px;margin:0 0 10px;}
+  .pdf-h2{font-family:'Almarai',sans-serif;font-weight:800;font-size:26px;margin:0 0 18px;}
+  .pdf-sub{color:var(--pdf-muted);font-size:16px;line-height:1.8;}
+  .pdf-cover-num{font-family:'Almarai',sans-serif;font-weight:800;font-size:180px;color:var(--blue);line-height:1;margin:30px 0;}
+  .pdf-footer{position:absolute;bottom:40px;right:60px;left:60px;display:flex;justify-content:space-between;
+    color:var(--pdf-muted);font-size:13px;border-top:1px solid #E7E3D8;padding-top:14px;}
+
+  .pdf-macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:40px 0;}
+  .pdf-macro-box{background:#fff;border:2px solid #E7E3D8;border-radius:20px;padding:30px 10px;text-align:center;}
+  .pdf-macro-box .n{font-family:'Almarai',sans-serif;font-size:44px;font-weight:800;color:var(--blue);}
+  .pdf-macro-box.protein .n{color:var(--orange);}
+  .pdf-macro-box .l{color:var(--pdf-muted);font-size:15px;margin-top:8px;}
+
+  .pdf-table{width:100%;border-collapse:collapse;margin-top:10px;}
+  .pdf-table th{font-family:'Almarai',sans-serif;text-align:right;font-size:14px;color:var(--pdf-muted);
+    border-bottom:2px solid #E7E3D8;padding:10px 8px;}
+  .pdf-table td{padding:12px 8px;border-bottom:1px solid #EFEBE0;font-size:15px;}
+  .pdf-table tr:nth-child(odd) td{background:#F5F3EC;}
+
+  .pdf-day-badge{display:inline-block;background:var(--blue);color:#fff;font-family:'Almarai',sans-serif;
+    font-weight:700;font-size:14px;padding:6px 16px;border-radius:20px;margin-bottom:16px;}
+  .pdf-ex-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #E7E3D8;gap:12px;}
+  .pdf-ex-row .name{font-size:17px;font-weight:500;flex:1;}
+  .pdf-ex-row .right{display:flex;align-items:center;gap:14px;}
+  .pdf-ex-row .scheme{font-family:'Almarai',sans-serif;font-weight:700;color:var(--orange);font-size:16px;white-space:nowrap;}
+  .pdf-yt{display:flex;align-items:center;gap:6px;background:#FDECEA;color:#D8261F;font-size:13px;font-weight:700;
+    padding:6px 10px;border-radius:20px;white-space:nowrap;font-family:'Almarai',sans-serif;}
+  .pdf-yt .tri{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:8px solid #D8261F;}
+
+  .pdf-intensity-card{background:#fff;border:2px solid #E7E3D8;border-radius:16px;padding:22px 26px;margin-bottom:18px;}
+  .pdf-intensity-card h3{font-family:'Almarai',sans-serif;font-size:18px;margin:0 0 8px;color:var(--blue);}
+  .pdf-intensity-card p{margin:0;font-size:15px;line-height:1.9;color:var(--pdf-ink);}
+
+  .pdf-phase{background:#fff;border-right:5px solid var(--blue);border-radius:10px;padding:20px 24px;margin-bottom:16px;}
+  .pdf-phase h3{font-family:'Almarai',sans-serif;font-size:19px;margin:0 0 8px;}
+  .pdf-phase p{margin:0;color:var(--pdf-muted);font-size:15px;line-height:1.8;}
+
+  .pdf-tracker-table th,.pdf-tracker-table td{text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ribbon-label"><span id="ribbonTxt">الخطوة ١ من ٥</span><span>١٣ أسبوع / ٩٠ يوم</span></div>
+  <div class="ribbon" id="ribbon"></div>
+
+  <header>
+    <div class="eyebrow">تحوّل ٩٠</div>
+    <h1>جدولك يبدأ بخمس أسئلة</h1>
+    <p>تحوّل في ٩٠ يوم. جاوب بصراحة، وبعطيك برنامج تمرين + ماكروز مبني على وضعك بالضبط.</p>
+  </header>
+
+  <form id="quiz">
+    <div class="step active" data-step="1">
+      <div class="card">
+        <label class="qtitle">الجنس</label>
+        <label class="opt"><input type="radio" name="gender" value="male" required>ذكر</label>
+        <label class="opt"><input type="radio" name="gender" value="female">أنثى</label>
+      </div>
+      <div class="card">
+        <label class="qtitle">العمر</label>
+        <input type="text" inputmode="decimal" class="numinput" name="age" placeholder="مثال: ٢٨" required>
+      </div>
+      <div class="card">
+        <label class="qtitle">الطول والوزن</label>
+        <div class="grid2">
+          <div><div class="hint" style="margin-bottom:6px">الطول (سم)</div><input type="text" inputmode="decimal" class="numinput" name="height" placeholder="١٧٥" required></div>
+          <div><div class="hint" style="margin-bottom:6px">الوزن (كجم)</div><input type="text" inputmode="decimal" class="numinput" name="weight" placeholder="٨٠" required></div>
+        </div>
+      </div>
+      <div class="card">
+        <label class="qtitle">تعرف كم كيلو عضل وكم كيلو فات؟ (اختياري)</label>
+        <div class="grid2">
+          <div><div class="hint" style="margin-bottom:6px">كتلة العضل (كجم)</div><input type="text" inputmode="decimal" class="numinput" name="muscleMass" placeholder="اختياري"></div>
+          <div><div class="hint" style="margin-bottom:6px">كتلة الفات (كجم)</div><input type="text" inputmode="decimal" class="numinput" name="fatMass" placeholder="اختياري"></div>
+        </div>
+      </div>
+      <div class="card">
+        <label class="qtitle">طبيعة نشاطك اليومي (بعيد عن التمرين نفسه)</label>
+        <label class="opt"><input type="radio" name="lifestyle" value="desk" required>مكتبي / قاعد أغلب اليوم</label>
+        <label class="opt"><input type="radio" name="lifestyle" value="moderate">متوسط الحركة (تقف/تمشي جزء من اليوم)</label>
+        <label class="opt"><input type="radio" name="lifestyle" value="active">كثير الحركة (شغل بدني أو وقوف طويل)</label>
+      </div>
+      <div class="btnrow"><button type="button" class="btn-primary" onclick="nextStep(1)">التالي</button></div>
+    </div>
+
+    <div class="step" data-step="2">
+      <div class="card">
+        <label class="qtitle">وش هدفك؟</label>
+        <label class="opt"><input type="radio" name="goal" value="cut" required>نحف (تقليل الفات)</label>
+        <label class="opt"><input type="radio" name="goal" value="maintain">محافظة على الوضع الحالي</label>
+        <label class="opt"><input type="radio" name="goal" value="bulk">تضخيم / زيادة وزن</label>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn-ghost" onclick="prevStep(2)">رجوع</button>
+        <button type="button" class="btn-primary" onclick="nextStep(2)">التالي</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="3">
+      <div class="card">
+        <label class="qtitle">كم يوم تبي تتمرن بالأسبوع؟</label>
+        <label class="opt"><input type="radio" name="daysPerWeek" value="4" required>٤ أيام</label>
+        <label class="opt"><input type="radio" name="daysPerWeek" value="5">٥ أيام</label>
+        <label class="opt"><input type="radio" name="daysPerWeek" value="6">٦ أيام</label>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn-ghost" onclick="prevStep(3)">رجوع</button>
+        <button type="button" class="btn-primary" onclick="nextStep(3)">التالي</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="4">
+      <div class="card">
+        <label class="qtitle">وش أيام الأوف اللي تبيها؟</label>
+        <div class="hint" id="offHint">اختر أيام الأوف حسب عدد أيام التمرين</div>
+        <div id="offDaysContainer"></div>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn-ghost" onclick="prevStep(4)">رجوع</button>
+        <button type="button" class="btn-primary" onclick="nextStep(4)">التالي</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="5">
+      <div class="card">
+        <label class="qtitle">وش أطول يوم تقدر تتمرن فيه؟</label>
+        <div class="hint">تقدر تختار أكثر من يوم</div>
+        <div id="longDayContainer"></div>
+      </div>
+      <div class="btnrow">
+        <button type="button" class="btn-ghost" onclick="prevStep(5)">رجوع</button>
+        <button type="button" class="btn-primary" onclick="generatePlan()">جهّز برنامجي</button>
+      </div>
+    </div>
+  </form>
+
+  <div id="results" style="display:none">
+    <div class="card" style="border-color:var(--blue)">
+      <h3 style="margin:0 0 4px">ماكروزك اليومية</h3>
+      <div class="hint" style="margin-bottom:0">بناءً على وزنك وهدفك</div>
+    </div>
+    <div class="macros">
+      <div class="macro-card"><div class="num" id="rCal">-</div><div class="label">سعرة حرارية</div></div>
+      <div class="macro-card protein"><div class="num" id="rProtein">-</div><div class="label">بروتين (جم)</div></div>
+      <div class="macro-card"><div class="num" id="rCarb">-</div><div class="label">كارب (جم)</div></div>
+    </div>
+
+    <h3 style="font-size:16px;margin:20px 0 10px">جدول أسبوعك (نموذج)</h3>
+    <div id="weekPreview"></div>
+
+    <div class="card" id="contactCard">
+      <label class="qtitle">بيانات التواصل</label>
+      <div class="hint" style="margin-bottom:12px">نرسل عليها نسخة من برنامجك بعد الدفع</div>
+      <input type="text" class="textinput" id="custName" placeholder="الاسم الكامل" style="margin-bottom:10px" required>
+      <input type="email" class="textinput" id="custEmail" placeholder="البريد الإلكتروني" style="margin-bottom:10px;direction:ltr;text-align:left" required>
+      <input type="text" inputmode="tel" class="numinput" id="custPhone" placeholder="رقم الجوال (05xxxxxxxx)" style="direction:ltr;text-align:left" required>
+    </div>
+
+    <button class="download" id="payBtn" onclick="payNow()">💳 ادفع <span id="priceTag">49</span> ريال وحمّل برنامجك</button>
+    <button class="download" id="pdfBtn" style="display:none" onclick="downloadPDF()">⬇ تحميل برنامج الـ٩٠ يوم كامل PDF</button>
+    <footer class="note" id="payHint">دفعة واحدة، بدون اشتراك. بعد الدفع نرسل نسخة على بريدك الإلكتروني تلقائياً، وتقدر تحمّلها من هذي الصفحة أيضاً.</footer>
+  </div>
+</div>
+
+<!-- ============ OFF-SCREEN PDF PAGES (populated by JS, captured by html2canvas) ============ -->
+<div id="pdfRoot"></div>
+
+<script>
+const WEEKDAYS = ['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+const WEEKDAY_SHORT = {
+  'السبت':'سبت', 'الأحد':'أحد', 'الاثنين':'اثنين', 'الثلاثاء':'ثلاثاء',
+  'الأربعاء':'أربعاء', 'الخميس':'خميس', 'الجمعة':'جمعة'
+};
+
+// accept Arabic-Indic (٠-٩), Persian (۰-۹) and Latin digits in numeric fields
+function normalizeDigits(str){
+  return str
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٫,]/g, '.'); // arabic/alt decimal separators -> "."
+}
+document.querySelectorAll('input.numinput').forEach(inp=>{
+  inp.addEventListener('input', ()=>{
+    const clean = normalizeDigits(inp.value).replace(/[^0-9.]/g,'');
+    if(clean !== inp.value) inp.value = clean;
+  });
+});
+
+let currentStep = 1;
+const TOTAL_STEPS = 5;
+const PRICE_SAR = 54; // غيّرها للسعر اللي تبيه
+
+async function payNow(){
+  const name = document.getElementById('custName').value.trim();
+  const email = document.getElementById('custEmail').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  if(!name || !email || !phone){
+    alert('عبّي الاسم والإيميل ورقم الجوال قبل الدفع');
+    return;
+  }
+  const customer = { name, email, phone };
+
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true; btn.textContent = 'جاري تحويلك لصفحة الدفع...';
+  try{
+    const orderId = 'ord_' + Date.now();
+    localStorage.setItem('pendingOrder', JSON.stringify({ orderId, userData, customer }));
+    const redirectBase = window.location.origin + window.location.pathname;
+
+    const res = await fetch('/.netlify/functions/create-charge', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ amount: PRICE_SAR, currency:'SAR', orderId, redirectBase, customer })
+    });
+    const data = await res.json();
+    if(data.url){ window.location.href = data.url; return; }
+    throw new Error(data.error ? JSON.stringify(data.error) : 'unknown error');
+  } catch(err){
+    console.error(err);
+    alert('صار خطأ وإحنا نجهز صفحة الدفع. جرب مرة ثانية.');
+    btn.disabled = false; btn.textContent = `💳 ادفع ${PRICE_SAR} ريال وحمّل برنامجك`;
+  }
+}
+
+function unlockAfterPayment(){
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('contactCard').style.display = 'none';
+  document.getElementById('payBtn').style.display = 'none';
+  document.getElementById('pdfBtn').style.display = 'block';
+  document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅ — بإمكانك تحميل الملف أكثر من مرة من هذي الصفحة.';
+}
+
+// runs once on page load: were we just redirected back from Tap's payment page?
+(async function checkPaymentReturn(){
+  const params = new URLSearchParams(window.location.search);
+  const tapId = params.get('tap_id');
+  if(!tapId) return;
+  try{
+    const res = await fetch(`/.netlify/functions/verify-charge?tap_id=${tapId}`);
+    const data = await res.json();
+    if(data.status === 'CAPTURED'){
+      const pending = JSON.parse(localStorage.getItem('pendingOrder') || 'null');
+      if(pending && pending.userData){
+        userData = pending.userData;
+        macros = calcMacros(userData);
+        PROGRAM = buildProgram(userData.goal, +userData.daysPerWeek, userData.offDays, userData.longDays);
+
+        document.getElementById('rCal').textContent = macros.calories;
+        document.getElementById('rProtein').textContent = macros.protein;
+        document.getElementById('rCarb').textContent = macros.carbs;
+        renderWeekPreview(false); // unlocked: show every day in full
+
+        unlockAfterPayment();
+
+        if(pending.customer && pending.customer.email){
+          document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅ — جاري إرسال نسخة على بريدك الإلكتروني...';
+          const sent = await emailPDF(pending.customer);
+          document.getElementById('payHint').textContent = sent
+            ? 'تم تأكيد الدفع ✅ — أرسلنا نسخة على بريدك الإلكتروني، وتقدر تحمّلها من هذي الصفحة أيضاً.'
+            : 'تم تأكيد الدفع ✅ — ما قدرنا نرسل الإيميل تلقائياً، بس تقدر تحمّل الملف مباشرة من هذي الصفحة.';
+        }
+      }
+    } else {
+      alert('ما انتهت عملية الدفع بنجاح. جرب مرة ثانية.');
+    }
+  } catch(err){ console.error(err); }
+})();
+
+const ribbon = document.getElementById('ribbon');
+for(let i=0;i<TOTAL_STEPS;i++){ const s=document.createElement('div'); s.className='seg'; ribbon.appendChild(s); }
+function updateRibbon(){
+  const segs = ribbon.querySelectorAll('.seg');
+  segs.forEach((s,i)=> s.classList.toggle('on', i<currentStep));
+  document.getElementById('ribbonTxt').textContent = `الخطوة ${currentStep} من ${TOTAL_STEPS}`;
+}
+function showStep(n){
+  document.querySelectorAll('.step').forEach(s=> s.classList.toggle('active', +s.dataset.step === n));
+  currentStep = n; updateRibbon();
+  if(n===4) buildOffDays();
+  if(n===5) buildLongDays();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextStep(n){
+  const stepEl = document.querySelector(`.step[data-step="${n}"]`);
+  const inputs = stepEl.querySelectorAll('input[required]');
+  for(const inp of inputs){
+    if(inp.type==='radio'){
+      const group = stepEl.querySelectorAll(`input[name="${inp.name}"]`);
+      if(![...group].some(g=>g.checked)){ alert('لازم تختار قبل ما تكمل'); return; }
+    } else if(!inp.value){ alert('لازم تعبي الحقل قبل ما تكمل'); return; }
+  }
+  showStep(n+1);
+}
+function prevStep(n){ showStep(n-1); }
+
+document.addEventListener('change', (e)=>{
+  if(e.target.type==='radio' || e.target.type==='checkbox'){
+    const name = e.target.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(i=>{
+      i.closest('.opt').classList.toggle('selected', i.checked);
+    });
+  }
+});
+
+function buildOffDays(){
+  const days = +document.querySelector('input[name="daysPerWeek"]:checked').value;
+  const offCount = 7 - days;
+  document.getElementById('offHint').textContent = `اختر بالضبط ${offCount} يوم أوف`;
+  document.getElementById('offDaysContainer').innerHTML =
+    WEEKDAYS.map(d=>`<label class="opt"><input type="checkbox" name="offDays" value="${d}">${d}</label>`).join('');
+}
+function buildLongDays(){
+  const offDays = [...document.querySelectorAll('input[name="offDays"]:checked')].map(i=>i.value);
+  const trainDays = WEEKDAYS.filter(d=>!offDays.includes(d));
+  document.getElementById('longDayContainer').innerHTML =
+    trainDays.map(d=>`<label class="opt"><input type="checkbox" name="longDay" value="${d}">${d}</label>`).join('');
+}
+
+function calcMacros(data){
+  const w = parseFloat(data.weight), h = parseFloat(data.height), a = parseFloat(data.age);
+  let bmr = data.gender==='male' ? (10*w + 6.25*h - 5*a + 5) : (10*w + 6.25*h - 5*a - 161);
+
+  // معامل النشاط = نشاط يومي بعيد عن الجيم (lifestyle) + بصمة أيام التمرين (training bump)
+  // بدل معامل واحد ثابت مبني على أيام التمرين بس، اللي كان يبالغ لو الشغل مكتبي
+  const BASE_ACTIVITY = { desk:1.10, moderate:1.20, active:1.30 };
+  const TRAINING_BUMP = { 4:0.08, 5:0.12, 6:0.16 };
+  const days = +data.daysPerWeek;
+  const activityFactor = (BASE_ACTIVITY[data.lifestyle] ?? 1.3) + (TRAINING_BUMP[days] ?? 0.15);
+  let tdee = bmr*activityFactor;
+
+  const PROTEIN_PER_KG = 2.0; // موحّد بكل الأهداف الآن
+  let calories, fatPerKg;
+  if(data.goal==='cut'){ calories = tdee*0.8; fatPerKg=0.7; }
+  else if(data.goal==='bulk'){ calories = tdee*1.12; fatPerKg=0.8; }
+  else { calories = tdee; fatPerKg=0.8; }
+
+  // أرضية أمان للسعرات — بغض النظر عن نتيجة المعادلة، ما ننزل عن هذا الحد أبداً
+  const CALORIE_FLOOR = data.gender==='male' ? 1500 : 1200;
+  calories = Math.max(calories, CALORIE_FLOOR);
+
+  const protein = w*PROTEIN_PER_KG;
+  let fat = w*fatPerKg;
+  let carbs = Math.max((calories - protein*4 - fat*9)/4, 0);
+
+  // أرضية الكارب: ما ينزل عن ٢٠٪ من إجمالي السعرات، ننقص من الفات (مو من البروتين) لو احتجنا مساحة،
+  // مع إبقاء حد أدنى أساسي للفات (٠.٥ جم/كجم) لصحة الهرمونات.
+  const minCarbCals = calories * 0.20;
+  if(carbs*4 < minCarbCals){
+    const essentialFatCals = w*0.5*9;
+    const fatCals = Math.max(calories - protein*4 - minCarbCals, essentialFatCals);
+    fat = fatCals/9;
+    carbs = Math.max((calories - protein*4 - fat*9)/4, 0);
+  }
+
+  return { calories:Math.round(calories), protein:Math.round(protein), carbs:Math.round(carbs) };
+}
+
+/* ============================================================
+   ONE shared exercise bank + goal schemes + split maps.
+   This generates all 9 goal×days combinations programmatically —
+   no need to hand-author 9 separate templates.
+   ============================================================ */
+
+const GOAL_LABELS = { cut:'نحف', maintain:'محافظة', bulk:'تضخيم' };
+
+// Every unique exercise name lives ONCE here. Fill videos in LINK_MAP
+// by exercise name and every template that uses it updates automatically.
+const LINK_MAP = {
+  'بنش برس': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
+  'ضغط كتف دمبل': 'https://www.youtube.com/shorts/k6tzKisR3NY',
+  'تفتيح صدر كيبل': 'https://www.youtube.com/shorts/jpHueSRpPkU',
+  'ترايسيبس كيبل': 'https://www.youtube.com/shorts/DofcfjlgOTs',
+  'بنش برس مائل دمبل': 'https://www.youtube.com/shorts/ljyqdC4ydrM',
+  'ضغط عسكري بار': 'https://www.youtube.com/shorts/afR3tPH6y_g',
+  'تفتيح صدر دمبل': 'https://www.youtube.com/shorts/atcyT99YDeI',
+  'ترايسيبس فوق الراس': 'https://www.youtube.com/shorts/J565P8FzJXA',
+  'سحب علوي': 'https://www.youtube.com/shorts/hRkkoUQqTV4',
+  'تجديف بار': 'https://www.youtube.com/shorts/YSxDxTsJZkY',
+  'سحب كيبل خلفي': 'https://www.youtube.com/shorts/lBeSLbhnZdY',
+  'باي بار': 'https://www.youtube.com/shorts/dIAxyJimXnA',
+  'تجديف دمبل بزاوية': 'https://www.youtube.com/shorts/H8jf3DwlIlo',
+  'سحب أرضي كيبل': 'https://www.youtube.com/shorts/8QuMq1GMMng',
+  'فاي كيبل خلفي': 'https://www.youtube.com/shorts/iQd4rDiV-Dc',
+  'باي دمبل تناوب': 'https://www.youtube.com/shorts/OIcc0u6THvA',
+  'سكوات': 'https://www.youtube.com/shorts/tNUq6b5t11Q',
+  'دد ليفت روماني': 'https://www.youtube.com/shorts/OVd1pq1cAvE',
+  'لانج': 'https://www.youtube.com/shorts/Rkkc-FnURyc',
+  'سمانة واقف': 'https://www.youtube.com/shorts/FmJKR_fGDz8',
+  'سكوات فرونت': 'https://www.youtube.com/shorts/zJ3v09-ubKk',
+  'ليك برس': 'https://www.youtube.com/shorts/bJJkwPxK2eQ',
+  'إكستنشن ركبة': 'https://www.youtube.com/shorts/tWFBltkWhBE',
+  'سمانة جالس': 'https://www.youtube.com/shorts/A20iize9ZYs',
+  'سكوات جوبلت': 'https://www.youtube.com/shorts/7Ox3XID6ZJg',
+  'ضغط عسكري': 'https://www.youtube.com/shorts/afR3tPH6y_g',
+  'تجديف دمبل': 'https://www.youtube.com/shorts/IOOLhrkN_NI',
+  'كارديو منخفض الشدة': '',
+};
+
+// day-splits by how many training days per week
+const SPLIT_BY_DAYS = {
+  4: ['push','pull','legs','full'],
+  5: ['push','pull','legs','upper','lower'],
+  6: ['push','pull','legs','push','pull','legs'],
+};
+
+const DAY_META = {
+  push:{label:'دفع (صدر / كتف / ترايسيبس)'},
+  pull:{label:'سحب (ظهر / باي)'},
+  legs:{label:'أرجل'},
+  upper:{label:'علوي (فل أبر)'},
+  lower:{label:'سفلي (فل لوير)'},
+  full:{label:'فل بودي + كارديو'},
+};
+
+// A/B variants only needed where a pattern repeats (6-day split)
+const PATTERN_BANK = {
+  push:{
+    A:[{n:'بنش برس',role:'primary'},{n:'ضغط كتف دمبل',role:'primary'},
+       {n:'تفتيح صدر كيبل',role:'accessory'},{n:'ترايسيبس كيبل',role:'accessory'}],
+    B:[{n:'بنش برس مائل دمبل',role:'primary'},{n:'ضغط عسكري بار',role:'primary'},
+       {n:'تفتيح صدر دمبل',role:'accessory'},{n:'ترايسيبس فوق الراس',role:'accessory'}],
+  },
+  pull:{
+    A:[{n:'سحب علوي',role:'primary'},{n:'تجديف بار',role:'primary'},
+       {n:'سحب كيبل خلفي',role:'accessory'},{n:'باي بار',role:'accessory'}],
+    B:[{n:'تجديف دمبل بزاوية',role:'primary'},{n:'سحب أرضي كيبل',role:'primary'},
+       {n:'فاي كيبل خلفي',role:'accessory'},{n:'باي دمبل تناوب',role:'accessory'}],
+  },
+  legs:{
+    A:[{n:'سكوات',role:'primary'},{n:'دد ليفت روماني',role:'primary'},
+       {n:'لانج',role:'accessory'},{n:'سمانة واقف',role:'accessory'}],
+    B:[{n:'سكوات فرونت',role:'primary'},{n:'ليك برس',role:'primary'},
+       {n:'إكستنشن ركبة',role:'accessory'},{n:'سمانة جالس',role:'accessory'}],
+  },
+  upper:{A:[{n:'بنش برس',role:'primary'},{n:'سحب علوي',role:'primary'},
+            {n:'ضغط كتف دمبل',role:'accessory'},{n:'تجديف بار',role:'accessory'}]},
+  lower:{A:[{n:'سكوات',role:'primary'},{n:'دد ليفت روماني',role:'primary'},
+            {n:'لانج',role:'accessory'},{n:'سمانة واقف',role:'accessory'}]},
+  full: {A:[{n:'سكوات جوبلت',role:'primary'},{n:'ضغط عسكري',role:'primary'},
+            {n:'تجديف دمبل',role:'accessory'},{n:'كارديو منخفض الشدة',role:'cardio'}]},
+};
+
+// sets/reps by goal, applied by exercise role
+const GOAL_SCHEME = {
+  cut:      {primary:'٤×٨-١٠',  accessory:'٣×١٢-١٥', cardio:'٢٠-٢٥ دقيقة'},
+  maintain: {primary:'٣×٨-١٠',  accessory:'٣×١٠-١٢', cardio:'١٥-٢٠ دقيقة'},
+  bulk:     {primary:'٤×٦-١٠',  accessory:'٤×١٠-١٢', cardio:'١٠-١٥ دقيقة'},
+};
+
+// cardio finisher added on TOP of lifting days (the "full" day already has its own
+// cardio block). نحف يحتاج حجم كارديو أعلى فعلياً، فلاحظ الفرق هنا مو بس بالمدة:
+// - نحف: فينشر كارديو بعد كل يوم حديد
+// - محافظة: فينشر بعد يوم من كل يومين (تناوب)
+// - تضخيم: بدون فينشر إضافي، الكارديو محصور بيوم الفل بودي بس عشان ما ياكل من التعافي
+const CARDIO_FINISHER_BY_GOAL = {
+  cut:'١٥-٢٠ دقيقة',
+  maintain:'١٠-١٥ دقيقة',
+  bulk:null,
+};
+
+// 4-phase progression notes, tuned per goal
+const GOAL_PHASES = {
+  cut:[
+    {range:'أسبوع ١-٤ · تأسيس', note:'ثبّت الأوزان وركّز على التقنية، مع ترك ٢-٣ تكرارات احتياطية في كل مجموعة.'},
+    {range:'أسبوع ٥-٨ · تكثيف', note:'زد عدد التكرارات حتى الحد الأعلى المسموح به، ثم زد الوزن بمقدار ٢-٥٪.'},
+    {range:'أسبوع ٩-١٢ · ذروة', note:'زد الشدة وقلّل نطاق التكرارات قليلاً مع زيادة الوزن، وراقب التعافي مع نقص السعرات.'},
+    {range:'أسبوع ١٣ · تخفيف', note:'خفف الحجم ٤٠٪ مع بقاء الشدة، واستعد لتقييم واختبار جديد.'},
+  ],
+  maintain:[
+    {range:'أسبوع ١-٤ · ثبات', note:'حافظ على نفس الأوزان تقريباً، ركّز على التقنية والانتظام بالحضور.'},
+    {range:'أسبوع ٥-٨ · تنويع', note:'غيّر ترتيب أو زاوية بعض التمارين لتفادي الملل مع نفس مستوى الشدة.'},
+    {range:'أسبوع ٩-١٢ · تحدي خفيف', note:'زد الوزن بمقدار بسيط ٢-٣٪ إذا شعرت أن التمرين أصبح سهلاً، دون السعي وراء الأرقام.'},
+    {range:'أسبوع ١٣ · تقييم', note:'راجع كيف تغيرت لياقتك ووزنك، وحدد هدفك للمرحلة الجاية.'},
+  ],
+  bulk:[
+    {range:'أسبوع ١-٤ · بناء أساس', note:'ثبّت الأوزان وزد حجم التمرين تدريجياً، وكن قريباً من الفشل العضلي في التمارين المساعدة.'},
+    {range:'أسبوع ٥-٨ · زيادة حمل', note:'زد الوزن كل ما استطعت إكمال العدد الكامل من التكرارات في جميع المجموعات.'},
+    {range:'أسبوع ٩-١٢ · ذروة قوة', note:'ركّز على التمارين الأساسية بأوزان أعلى، وخفّف قليلاً في التمارين المساعدة إذا كان التعافي بطيئاً.'},
+    {range:'أسبوع ١٣ · تخفيف واختبار', note:'خفف الحجم ٤٠٪، حافظ على وزن التمارين الأساسية، واختبر أقصى وزن جديد.'},
+  ],
+};
+
+function rotateArray(arr, shift){
+  const n = arr.length;
+  shift = ((shift % n) + n) % n;
+  return arr.map((_,i)=> arr[(i - shift + n) % n]);
+}
+
+function buildProgram(goal, daysPerWeek, offDays=[], longDays=[]){
+  let splitPatterns = SPLIT_BY_DAYS[daysPerWeek];
+  const trainDays = WEEKDAYS.filter(d=>!offDays.includes(d));
+
+  // schedule the "longest" pattern onto whichever weekday the person marked as their
+  // longest available day: for نحف that's the day carrying the long cardio session,
+  // for تضخيم/محافظة that's leg day — heaviest compound lifts, longest rest periods.
+  let priorityPattern = (goal==='cut' && splitPatterns.includes('full')) ? 'full' : 'legs';
+  if(trainDays.length === splitPatterns.length){
+    let priorityIdx = splitPatterns.indexOf(priorityPattern);
+    if(priorityIdx === -1) priorityIdx = 0;
+    const targetIdx = trainDays.findIndex(d => longDays.includes(d));
+    if(targetIdx !== -1){
+      const shift = (targetIdx - priorityIdx + splitPatterns.length) % splitPatterns.length;
+      splitPatterns = rotateArray(splitPatterns, shift);
+    }
+  }
+
+  const scheme = GOAL_SCHEME[goal];
+  const finisherDuration = CARDIO_FINISHER_BY_GOAL[goal];
+  const countOf = {};
+  splitPatterns.forEach(p=> countOf[p] = (countOf[p]||0)+1);
+  const seen = {};
+  let liftingDayIndex = 0;
+  const days = splitPatterns.map((pattern,i)=>{
+    seen[pattern] = (seen[pattern]||0)+1;
+    const occurrence = seen[pattern];
+    const variantKey = occurrence===2 ? 'B' : 'A';
+    const bank = PATTERN_BANK[pattern][variantKey] || PATTERN_BANK[pattern].A;
+    const label = DAY_META[pattern].label + (countOf[pattern]>1 ? (occurrence===1?' ١':' ٢') : '');
+    const isPriorityDay = pattern===priorityPattern && occurrence===1;
+    const ex = bank.map(item=>({
+      n:item.n,
+      s: item.role==='cardio' ? scheme.cardio : scheme[item.role],
+      link: LINK_MAP[item.n] || ''
+    }));
+
+    // add a cardio finisher to non-"full" days, frequency depends on goal.
+    // نحف specifically: the priority (legs) day gets the LONG cardio duration,
+    // the rest get the shorter finisher — so "longest day" really means longest.
+    if(pattern!=='full' && finisherDuration){
+      const addToThisDay = goal==='cut' ? true : (liftingDayIndex % 2 === 0);
+      if(addToThisDay){
+        const dur = (goal==='cut' && priorityPattern==='legs' && isPriorityDay) ? scheme.cardio : finisherDuration;
+        ex.push({ n:'كارديو منخفض الشدة (فينشر)', s:dur, link: LINK_MAP['كارديو منخفض الشدة'] || '' });
+      }
+      liftingDayIndex++;
+    }
+
+    return { name:label, weekday: trainDays[i] || '', ex };
+  });
+  return { goalLabel:GOAL_LABELS[goal], days, phases:GOAL_PHASES[goal] };
+}
+
+const INTENSITY_GUIDE = {
+  cut:{
+    strength:'حافظ على شدة عالية دون الوصول إلى الفشل العضلي الكامل — توقف قبل التكرار الأخير بتكرار أو اثنين، بحيث تشعر أنك قادر بالكاد على أداء تكرار إضافي. الجسم في حالة عجز غذائي، والفشل الكامل يرفع خطر الإصابة والإجهاد الزائد دون فائدة إضافية حقيقية.',
+    cardio:'حافظ على شدة ثابتة ومتوسطة عند المستوى الثاني لمعدل ضربات القلب (zone 2) إذا توفر لديك جهاز لقياس النبض. إذا لم يتوفر لديك جهاز، فالاختبار البسيط هو: ارفع وتيرة حركتك حتى تشعر فعلاً أنك تتحرك، لكن تبقى قادراً على إكمال جملة كاملة وأنت تتحدث دون لهاث أو انقطاع.'
+  },
+  maintain:{
+    strength:'حافظ على مجهود متوسط إلى عالٍ، وتوقف قبل الفشل بحوالي ٢-٣ تكرارات. الهدف مقاومة كافية تحافظ على العضل، لا استنزاف كامل في كل جلسة.',
+    cardio:'المستوى الثاني لمعدل ضربات القلب (zone 2): نفَس ثابت، وتستطيع التحدث بجمل كاملة براحة. إذا لم يتوفر لديك جهاز لقياس النبض، فاجعل مجهودك بحيث تشعر بعمل واضح لكن دون أن يصل إلى درجة تقطع نفَسك.'
+  },
+  bulk:{
+    strength:'اجعل آخر مجموعة أو مجموعتين من كل تمرين قريبتين من الفشل العضلي أو تصلا إليه فعلاً — فهذا ما يمنح إشارة نمو حقيقية. أما المجموعات الأولى فاجعلها بمجهود عالٍ دون الوصول للفشل، للحفاظ على الحجم والتقنية.',
+    cardio:'الكارديو هنا عنصر مكمّل وليس أساسياً، فاجعله عند المستوى الثاني الخفيف لمعدل ضربات القلب (zone 2)، بحيث تستطيع التحدث بجمل كاملة أثناء المشي أو الدواسة، حتى يخدم صحة القلب دون أن يستهلك من طاقتك المخصصة للحديد.'
+  }
+};
+
+let userData = {}, macros = {}, PROGRAM = null;
+
+function fullDayHtml(d){
+  return `<div class="day-preview"><h3>${d.weekday?`${d.weekday} · `:''}${d.name}</h3>
+    <ul>${d.ex.map(e=>`<li>${e.n} — ${e.s} ${e.link?`<a href="${e.link}" target="_blank">▶ فيديو</a>`:''}</li>`).join('')}</ul></div>`;
+}
+function lockedDayHtml(d){
+  return `<div class="day-preview locked"><h3>🔒 ${d.weekday?`${d.weekday} · `:''}${d.name}</h3>
+    <div class="locked-body">
+      <ul>${d.ex.map(e=>`<li>${e.n} — ${e.s}</li>`).join('')}</ul>
+      <div class="lock-overlay">🔒 يفتح كامل بعد الدفع</div>
+    </div></div>`;
+}
+function renderWeekPreview(locked){
+  const html = PROGRAM.days.map((d,i)=> (locked && i>0) ? lockedDayHtml(d) : fullDayHtml(d)).join('');
+  document.getElementById('weekPreview').innerHTML = html;
+}
+
+function generatePlan(){
+  const longDays = [...document.querySelectorAll('input[name="longDay"]:checked')];
+  if(longDays.length===0){ alert('اختر يوم واحد على الأقل'); return; }
+
+  const fd = new FormData(document.getElementById('quiz'));
+  userData = Object.fromEntries(fd.entries());
+  userData.offDays = [...document.querySelectorAll('input[name="offDays"]:checked')].map(i=>i.value);
+  userData.longDays = longDays.map(i=>i.value);
+
+  macros = calcMacros(userData);
+  PROGRAM = buildProgram(userData.goal, +userData.daysPerWeek, userData.offDays, userData.longDays);
+
+  document.getElementById('rCal').textContent = macros.calories;
+  document.getElementById('rProtein').textContent = macros.protein;
+  document.getElementById('rCarb').textContent = macros.carbs;
+
+  renderWeekPreview(true); // locked teaser: day 1 full, rest blurred
+
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('results').style.display='block';
+}
+
+/* ---------- Build off-screen PDF page markup ---------- */
+function ribbonHtml(litCount){
+  let html='<div class="pdf-ribbon">';
+  for(let i=0;i<13;i++) html += `<div class="pdf-seg ${i<litCount?'on':''}"></div>`;
+  return html+'</div>';
+}
+
+function buildPdfPages(){
+  const root = document.getElementById('pdfRoot');
+  root.innerHTML = '';
+
+  const nDays = PROGRAM.days.length;
+  const totalPages = 3 + nDays + 3; // cover, macros, split + day pages + progress, intensity, tracker
+  let pageNum = 0;
+  const nextPage = ()=>{ pageNum++; return pageNum; };
+  const ribbonFor = (p)=> Math.round((p/totalPages)*13);
+
+  // Page: cover
+  let p = nextPage();
+  root.innerHTML += `
+  <div class="pdf-page">
+    ${ribbonHtml(ribbonFor(p))}
+    <div class="pdf-eyebrow">تحوّل ٩٠</div>
+    <div class="pdf-h1">تحوّل في ٩٠ يوم</div>
+    <div class="pdf-sub">برنامج ${PROGRAM.goalLabel} · ${userData.daysPerWeek} أيام تدريب أسبوعياً · ١٣ أسبوع كامل</div>
+    <div class="pdf-cover-num">90</div>
+    <div class="pdf-sub">يوم من الالتزام يبني نتيجة ما ترجع فيها.</div>
+    <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+  </div>`;
+
+  // Page: macros
+  p = nextPage();
+  root.innerHTML += `
+  <div class="pdf-page">
+    ${ribbonHtml(ribbonFor(p))}
+    <div class="pdf-eyebrow">التغذية</div>
+    <div class="pdf-h2">ماكروزك اليومية</div>
+    <div class="pdf-sub">محسوبة على وزنك، طولك، عمرك، وهدفك (${PROGRAM.goalLabel}).</div>
+    <div class="pdf-macro-grid">
+      <div class="pdf-macro-box"><div class="n">${macros.calories}</div><div class="l">سعرة حرارية</div></div>
+      <div class="pdf-macro-box protein"><div class="n">${macros.protein}</div><div class="l">بروتين (جم)</div></div>
+      <div class="pdf-macro-box"><div class="n">${macros.carbs}</div><div class="l">كارب (جم)</div></div>
+    </div>
+    <div class="pdf-sub">وزّع البروتين على ٣-٤ وجبات في اليوم، واشرب كمية كافية من الماء.</div>
+    <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+  </div>`;
+
+  // Page: weekly split overview
+  p = nextPage();
+  const rows = PROGRAM.days.map((d,i)=>`
+    <tr><td>${d.weekday || ('يوم '+(i+1))}</td><td>${d.name}</td><td>${d.ex.length} تمارين</td></tr>`).join('');
+  root.innerHTML += `
+  <div class="pdf-page">
+    ${ribbonHtml(ribbonFor(p))}
+    <div class="pdf-eyebrow">الجدول الأسبوعي</div>
+    <div class="pdf-h2">تقسيم أيام التدريب</div>
+    <table class="pdf-table">
+      <tr><th>اليوم</th><th>التركيز</th><th>عدد التمارين</th></tr>
+      ${rows}
+    </table>
+    <div class="pdf-sub" style="margin-top:20px">أيام الأوف: ${userData.offDays.join('، ')}</div>
+
+    <div class="pdf-intensity-card" style="margin-top:24px">
+      <h3>قبل تضغط على أي رابط فيديو 🎥</h3>
+      <p>أغلب مقاطع الشرح بالإنجليزي. إذا تبي ترجمة عربية فورية: افتح المقطع بتطبيق يوتيوب ← اضغط ⚙️ (الإعدادات) ← "الترجمة والتسميات التوضيحية" (Captions) ← فعّلها ← اختر "ترجمة تلقائية" (Auto-translate) ← اختر العربي من القائمة.</p>
+      <p style="margin-top:10px">بعض المقاطع فيها موسيقى خلفية. إذا ما تسمع الأغاني، اقفل صوت المقطع وشغّله بدون صوت — التركيز يكون على الحركة نفسها بس.</p>
+    </div>
+    <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+  </div>`;
+
+  // Pages: each day detail
+  PROGRAM.days.forEach((d,i)=>{
+    p = nextPage();
+    const exRows = d.ex.map(e=>`
+      <div class="pdf-ex-row">
+        <span class="name">${e.n}</span>
+        <span class="right">
+          ${e.link?`<span class="pdf-yt yt-hot" data-url="${e.link}"><span class="tri"></span>فيديو</span>`:''}
+          <span class="scheme">${e.s}</span>
+        </span>
+      </div>`).join('');
+    root.innerHTML += `
+    <div class="pdf-page">
+      ${ribbonHtml(ribbonFor(p))}
+      <div class="pdf-day-badge">${d.weekday || ('يوم '+(i+1))}</div>
+      <div class="pdf-h2">${d.name}</div>
+      ${exRows}
+      <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+    </div>`;
+  });
+
+  // Page: progression
+  p = nextPage();
+  const phaseHtml = PROGRAM.phases.map(ph=>`
+    <div class="pdf-phase"><h3>${ph.range}</h3><p>${ph.note}</p></div>`).join('');
+  root.innerHTML += `
+  <div class="pdf-page">
+    ${ribbonHtml(ribbonFor(p))}
+    <div class="pdf-eyebrow">التقدّم</div>
+    <div class="pdf-h2">خطة ١٣ أسبوع</div>
+    ${phaseHtml}
+    <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+  </div>`;
+
+  // Page: intensity / effort guidance (tailored to the user's goal)
+  p = nextPage();
+  const guide = INTENSITY_GUIDE[userData.goal] || INTENSITY_GUIDE.maintain;
+  root.innerHTML += `
+  <div class="pdf-page">
+    ${ribbonHtml(ribbonFor(p))}
+    <div class="pdf-eyebrow">المجهود</div>
+    <div class="pdf-h2">وش يعني "شدة صح" بجلستك؟</div>
+    <div class="pdf-intensity-card">
+      <h3>شدة الحديد</h3>
+      <p>${guide.strength}</p>
+    </div>
+    <div class="pdf-intensity-card">
+      <h3>شدة الكارديو</h3>
+      <p>${guide.cardio}</p>
+    </div>
+    <div class="pdf-intensity-card">
+      <h3>الراحة بين المجموعات</h3>
+      <p>الراحة تزيد تدريجياً كل ما اقتربت من الفشل العضلي: خذ ٦٠-٩٠ ثانية بعد أول مجموعتين من كل تمرين، وزد الراحة إلى ٩٠-١٢٠ ثانية بين المجموعة الثالثة والرابعة، لأنك في هذه المرحلة تكون أقرب للفشل العضلي وتحتاج وقتاً أطول للتعافي قبل المجموعة التالية.</p>
+    </div>
+    <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+  </div>`;
+
+  // Page: weekly tracker
+  p = nextPage();
+  let trackRows='';
+  const dayHeaders = PROGRAM.days.map((d,i)=>`<th>${d.weekday ? (WEEKDAY_SHORT[d.weekday]||d.weekday) : 'ي'+(i+1)}</th>`).join('');
+  for(let w=1;w<=13;w++){
+    const cells = PROGRAM.days.map(()=>'<td>☐</td>').join('');
+    trackRows += `<tr><td>أسبوع ${w}</td>${cells}<td>_____</td></tr>`;
+  }
+  root.innerHTML += `
+  <div class="pdf-page">
+    ${ribbonHtml(13)}
+    <div class="pdf-eyebrow">تتبّع الالتزام</div>
+    <div class="pdf-h2">سجل الـ١٣ أسبوع</div>
+    <table class="pdf-table pdf-tracker-table">
+      <tr><th>الأسبوع</th>${dayHeaders}<th>الوزن</th></tr>
+      ${trackRows}
+    </table>
+    <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
+  </div>`;
+}
+
+async function buildPdfDoc(){
+  buildPdfPages();
+  if(document.fonts && document.fonts.ready) await document.fonts.ready;
+  await new Promise(r=>setTimeout(r, 150)); // let layout settle
+
+  const pages = document.querySelectorAll('#pdfRoot .pdf-page');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p','mm','a4');
+  const PX_TO_MM = 210/794; // A4 width mm / page width px, consistent for height too
+
+  for(let i=0;i<pages.length;i++){
+    const pageEl = pages[i];
+    const pageRect = pageEl.getBoundingClientRect();
+
+    // collect youtube hotspot rects (relative to this page) BEFORE capturing
+    const hotspots = [...pageEl.querySelectorAll('.yt-hot')].map(el=>{
+      const r = el.getBoundingClientRect();
+      return {
+        url: el.dataset.url,
+        x: (r.left - pageRect.left) * PX_TO_MM,
+        y: (r.top - pageRect.top) * PX_TO_MM,
+        w: r.width * PX_TO_MM,
+        h: r.height * PX_TO_MM
+      };
+    });
+
+    const canvas = await html2canvas(pageEl, {scale:2, backgroundColor:'#FBFAF7'});
+    const img = canvas.toDataURL('image/jpeg', 0.92);
+    if(i>0) doc.addPage();
+    doc.addImage(img, 'JPEG', 0, 0, 210, 297);
+
+    hotspots.forEach(h=>{
+      if(h.url) doc.link(h.x, h.y, h.w, h.h, {url:h.url});
+    });
+  }
+  return doc;
+}
+
+async function downloadPDF(){
+  const btn = document.getElementById('pdfBtn');
+  btn.disabled = true; btn.textContent = 'جاري التجهيز...';
+  try{
+    const doc = await buildPdfDoc();
+    doc.save('90-day-plan.pdf');
+  } catch(err){
+    alert('صار خطأ بتوليد الملف، جرب مرة ثانية.');
+    console.error(err);
+  } finally {
+    btn.disabled = false; btn.textContent = '⬇ تحميل برنامج الـ٩٠ يوم كامل PDF';
+  }
+}
+
+async function emailPDF(customer){
+  try{
+    const doc = await buildPdfDoc();
+    const pdfBase64 = doc.output('datauristring').split(',')[1]; // strip the data: prefix
+    const res = await fetch('/.netlify/functions/send-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ to: customer.email, name: customer.name, pdfBase64 })
+    });
+    const data = await res.json();
+    if(!res.ok || data.error) throw new Error(JSON.stringify(data.error || data));
+    return true;
+  } catch(err){
+    console.error('email send failed', err);
+    return false;
+  }
+}
+
+updateRibbon();
+document.getElementById('priceTag').textContent = PRICE_SAR;
+</script>
+</body>
+</html>
