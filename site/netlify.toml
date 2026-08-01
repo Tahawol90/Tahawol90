@@ -1,3 +1,6 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "AIRTABLE_API_KEY,AIRTABLE_BASE_ID,AIRTABLE_TABLE,RESEND_API_KEY,TAP_SECRET_KEY,RESEND_FROM"
