@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>تحوّل ٩٠</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%231C84BE'/%3E%3Ctext x='32' y='42' font-family='Arial, sans-serif' font-size='26' font-weight='800' fill='white' text-anchor='middle'%3E90%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -59,10 +60,15 @@
   .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
 
   .macros{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
-  .macro-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 8px;text-align:center;}
+  .macro-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 8px;text-align:center;position:relative;}
   .macro-card .num{font-size:24px;font-weight:800;color:var(--blue);}
   .macro-card.protein .num{color:var(--orange);}
   .macro-card .label{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  .whatsin-row{display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border);}
+  .whatsin-ico{font-size:20px;line-height:1.4;flex-shrink:0;}
+  .whatsin-row div{font-size:13.5px;line-height:1.8;color:var(--text);}
+  .whatsin-row strong{font-family:'Almarai',sans-serif;font-weight:700;font-size:14.5px;}
 
   .day-preview{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
   .day-preview h3{margin:0 0 8px;font-size:15px;}
@@ -73,6 +79,15 @@
   .day-preview.locked h3{display:flex;align-items:center;gap:8px;}
   .locked-body{position:relative;}
   .locked-body ul{filter:blur(5px);user-select:none;pointer-events:none;}
+  .locked-body.unlocked ul{filter:none;pointer-events:auto;}
+  .locked-body.unlocked .lock-overlay{display:none;}
+
+  .num-wrap{position:relative;display:inline-block;}
+  .num-wrap.locked-body .num{filter:blur(6px);user-select:none;}
+  .num-wrap.locked-body.unlocked .num{filter:none;}
+  .lock-overlay.small{position:absolute;inset:-4px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.6);border-radius:8px;font-size:18px;}
+  .num-wrap.locked-body.unlocked .lock-overlay.small{display:none;}
   .lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;
     background:rgba(255,255,255,.72);border-radius:10px;font-weight:700;color:var(--blue);font-size:13px;text-align:center;}
 
@@ -140,8 +155,8 @@
 
   <header>
     <div class="eyebrow">تحوّل ٩٠</div>
-    <h1>جدولك يبدأ بخمس أسئلة</h1>
-    <p>تحوّل في ٩٠ يوم. جاوب بصراحة، وبعطيك برنامج تمرين + ماكروز مبني على وضعك بالضبط.</p>
+    <h1>جدولك يبدأ بتسع أسئلة</h1>
+    <p>تحوّل في ٩٠ يوم. جاوب على الأسئلة، وبنسويلك برنامج تمرين وماكروز بناء على احتياجك وروتينك بالضبط.</p>
   </header>
 
   <form id="quiz">
@@ -206,8 +221,8 @@
 
     <div class="step" data-step="4">
       <div class="card">
-        <label class="qtitle">وش أيام الأوف اللي تبيها؟</label>
-        <div class="hint" id="offHint">اختر أيام الأوف حسب عدد أيام التمرين</div>
+        <label class="qtitle">وش أيام الراحة اللي تبيها؟</label>
+        <div class="hint" id="offHint">اختر أيام الراحة حسب عدد أيام التمرين</div>
         <div id="offDaysContainer"></div>
       </div>
       <div class="btnrow">
@@ -219,7 +234,7 @@
     <div class="step" data-step="5">
       <div class="card">
         <label class="qtitle">وش أطول يوم تقدر تتمرن فيه؟</label>
-        <div class="hint">تقدر تختار أكثر من يوم</div>
+        <div class="hint">اختر يوم واحد بس</div>
         <div id="longDayContainer"></div>
       </div>
       <div class="btnrow">
@@ -231,13 +246,39 @@
 
   <div id="results" style="display:none">
     <div class="card" style="border-color:var(--blue)">
-      <h3 style="margin:0 0 4px">ماكروزك اليومية</h3>
+      <h3 style="margin:0 0 10px">احتياجك من السعرات الحرارية والبروتين والكاربوهيدرات</h3>
       <div class="hint" style="margin-bottom:0">بناءً على وزنك وهدفك</div>
     </div>
     <div class="macros">
-      <div class="macro-card"><div class="num" id="rCal">-</div><div class="label">سعرة حرارية</div></div>
+      <div class="macro-card">
+        <div class="num-wrap locked-body" id="calorieLockedBody">
+          <div class="num" id="rCal">-</div>
+          <div class="lock-overlay small">🔒</div>
+        </div>
+        <div class="label">سعرة حرارية</div>
+      </div>
       <div class="macro-card protein"><div class="num" id="rProtein">-</div><div class="label">بروتين (جم)</div></div>
       <div class="macro-card"><div class="num" id="rCarb">-</div><div class="label">كارب (جم)</div></div>
+    </div>
+
+    <div class="card" style="border-color:var(--blue)">
+      <label class="qtitle" style="margin-bottom:14px">وش بيوصلك بعد الدفع؟</label>
+      <div class="whatsin-row">
+        <span class="whatsin-ico">🍽️</span>
+        <div><strong>احتياجك من السعرات الحرارية والبروتين والكاربوهيدرات</strong><br>محسوبة بالضبط على وزنك، طولك، وهدفك. أرقام واضحة تتبعها من أول يوم.</div>
+      </div>
+      <div class="whatsin-row">
+        <span class="whatsin-ico">📅</span>
+        <div><strong>جدول تمارين أسبوعي مبني على احتياجك والأيام اللي تناسبك</strong><br>يتكرر لمدة ١٣ أسبوع كاملة بمستوى شدة متصاعد كل ما اقتربت من نهاية البرنامج.</div>
+      </div>
+      <div class="whatsin-row">
+        <span class="whatsin-ico">🎥</span>
+        <div><strong>برنامج تمارين كامل مع فيديو لكل تمرين</strong><br>كل حركة موضّحة بمقطع قصير، تفتحه بضغطة وحدة من داخل الملف نفسه.</div>
+      </div>
+      <div class="whatsin-row" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+        <span class="whatsin-ico">📩</span>
+        <div><strong>يوصلك ملف PDF كامل على إيميلك</strong><br>كل التفاصيل بمكان واحد، تفتحه من جوالك أو تطبعه، وترجع له أي وقت تبي.</div>
+      </div>
     </div>
 
     <h3 style="font-size:16px;margin:20px 0 10px">جدول أسبوعك (نموذج)</h3>
@@ -283,7 +324,7 @@ document.querySelectorAll('input.numinput').forEach(inp=>{
 
 let currentStep = 1;
 const TOTAL_STEPS = 5;
-const PRICE_SAR = 54; // غيّرها للسعر اللي تبيه
+const PRICE_SAR = 49; // غيّرها للسعر اللي تبيه
 
 async function payNow(){
   const name = document.getElementById('custName').value.trim();
@@ -321,9 +362,10 @@ function unlockAfterPayment(){
   document.getElementById('quiz').style.display = 'none';
   document.getElementById('results').style.display = 'block';
   document.getElementById('contactCard').style.display = 'none';
+  document.getElementById('calorieLockedBody').classList.add('unlocked');
   document.getElementById('payBtn').style.display = 'none';
   document.getElementById('pdfBtn').style.display = 'block';
-  document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅ — بإمكانك تحميل الملف أكثر من مرة من هذي الصفحة.';
+  document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅. بإمكانك تحميل الملف أكثر من مرة من هذي الصفحة.';
 }
 
 // runs once on page load: were we just redirected back from Tap's payment page?
@@ -348,12 +390,27 @@ function unlockAfterPayment(){
 
         unlockAfterPayment();
 
+        // fire-and-forget: log this order for the merchant's records (doesn't block the UX)
+        if(pending.customer){
+          fetch('/.netlify/functions/log-order', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              orderId: pending.orderId,
+              name: pending.customer.name, email: pending.customer.email, phone: pending.customer.phone,
+              gender: userData.gender, age: userData.age, height: userData.height, weight: userData.weight,
+              goal: userData.goal, daysPerWeek: userData.daysPerWeek, lifestyle: userData.lifestyle,
+              calories: macros.calories, protein: macros.protein, carbs: macros.carbs
+            })
+          }).catch(err => console.error('order logging failed', err));
+        }
+
         if(pending.customer && pending.customer.email){
-          document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅ — جاري إرسال نسخة على بريدك الإلكتروني...';
+          document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅. جاري إرسال نسخة على بريدك الإلكتروني...';
           const sent = await emailPDF(pending.customer);
           document.getElementById('payHint').textContent = sent
-            ? 'تم تأكيد الدفع ✅ — أرسلنا نسخة على بريدك الإلكتروني، وتقدر تحمّلها من هذي الصفحة أيضاً.'
-            : 'تم تأكيد الدفع ✅ — ما قدرنا نرسل الإيميل تلقائياً، بس تقدر تحمّل الملف مباشرة من هذي الصفحة.';
+            ? 'تم تأكيد الدفع ✅. أرسلنا نسخة على بريدك الإلكتروني، وتقدر تحمّلها من هذي الصفحة أيضاً.'
+            : 'تم تأكيد الدفع ✅. ما قدرنا نرسل الإيميل تلقائياً، بس تقدر تحمّل الملف مباشرة من هذي الصفحة.';
         }
       }
     } else {
@@ -401,7 +458,7 @@ document.addEventListener('change', (e)=>{
 function buildOffDays(){
   const days = +document.querySelector('input[name="daysPerWeek"]:checked').value;
   const offCount = 7 - days;
-  document.getElementById('offHint').textContent = `اختر بالضبط ${offCount} يوم أوف`;
+  document.getElementById('offHint').textContent = `اختر بالضبط ${offCount} يوم راحة`;
   document.getElementById('offDaysContainer').innerHTML =
     WEEKDAYS.map(d=>`<label class="opt"><input type="checkbox" name="offDays" value="${d}">${d}</label>`).join('');
 }
@@ -409,7 +466,7 @@ function buildLongDays(){
   const offDays = [...document.querySelectorAll('input[name="offDays"]:checked')].map(i=>i.value);
   const trainDays = WEEKDAYS.filter(d=>!offDays.includes(d));
   document.getElementById('longDayContainer').innerHTML =
-    trainDays.map(d=>`<label class="opt"><input type="checkbox" name="longDay" value="${d}">${d}</label>`).join('');
+    trainDays.map(d=>`<label class="opt"><input type="radio" name="longDay" value="${d}">${d}</label>`).join('');
 }
 
 function calcMacros(data){
@@ -638,7 +695,7 @@ function buildProgram(goal, daysPerWeek, offDays=[], longDays=[]){
 
 const INTENSITY_GUIDE = {
   cut:{
-    strength:'حافظ على شدة عالية دون الوصول إلى الفشل العضلي الكامل — توقف قبل التكرار الأخير بتكرار أو اثنين، بحيث تشعر أنك قادر بالكاد على أداء تكرار إضافي. الجسم في حالة عجز غذائي، والفشل الكامل يرفع خطر الإصابة والإجهاد الزائد دون فائدة إضافية حقيقية.',
+    strength:'حافظ على شدة عالية دون الوصول إلى الفشل العضلي الكامل. توقف قبل التكرار الأخير بتكرار أو اثنين، بحيث تشعر أنك قادر بالكاد على أداء تكرار إضافي. الجسم في حالة عجز غذائي، والفشل الكامل يرفع خطر الإصابة والإجهاد الزائد دون فائدة إضافية حقيقية.',
     cardio:'حافظ على شدة ثابتة ومتوسطة عند المستوى الثاني لمعدل ضربات القلب (zone 2) إذا توفر لديك جهاز لقياس النبض. إذا لم يتوفر لديك جهاز، فالاختبار البسيط هو: ارفع وتيرة حركتك حتى تشعر فعلاً أنك تتحرك، لكن تبقى قادراً على إكمال جملة كاملة وأنت تتحدث دون لهاث أو انقطاع.'
   },
   maintain:{
@@ -646,7 +703,7 @@ const INTENSITY_GUIDE = {
     cardio:'المستوى الثاني لمعدل ضربات القلب (zone 2): نفَس ثابت، وتستطيع التحدث بجمل كاملة براحة. إذا لم يتوفر لديك جهاز لقياس النبض، فاجعل مجهودك بحيث تشعر بعمل واضح لكن دون أن يصل إلى درجة تقطع نفَسك.'
   },
   bulk:{
-    strength:'اجعل آخر مجموعة أو مجموعتين من كل تمرين قريبتين من الفشل العضلي أو تصلا إليه فعلاً — فهذا ما يمنح إشارة نمو حقيقية. أما المجموعات الأولى فاجعلها بمجهود عالٍ دون الوصول للفشل، للحفاظ على الحجم والتقنية.',
+    strength:'اجعل آخر مجموعة أو مجموعتين من كل تمرين قريبتين من الفشل العضلي أو تصلا إليه فعلاً، فهذا ما يمنح إشارة نمو حقيقية. أما المجموعات الأولى فاجعلها بمجهود عالٍ دون الوصول للفشل، للحفاظ على الحجم والتقنية.',
     cardio:'الكارديو هنا عنصر مكمّل وليس أساسياً، فاجعله عند المستوى الثاني الخفيف لمعدل ضربات القلب (zone 2)، بحيث تستطيع التحدث بجمل كاملة أثناء المشي أو الدواسة، حتى يخدم صحة القلب دون أن يستهلك من طاقتك المخصصة للحديد.'
   }
 };
@@ -671,7 +728,7 @@ function renderWeekPreview(locked){
 
 function generatePlan(){
   const longDays = [...document.querySelectorAll('input[name="longDay"]:checked')];
-  if(longDays.length===0){ alert('اختر يوم واحد على الأقل'); return; }
+  if(longDays.length===0){ alert('اختر يوم واحد'); return; }
 
   const fd = new FormData(document.getElementById('quiz'));
   userData = Object.fromEntries(fd.entries());
@@ -727,7 +784,7 @@ function buildPdfPages(){
   <div class="pdf-page">
     ${ribbonHtml(ribbonFor(p))}
     <div class="pdf-eyebrow">التغذية</div>
-    <div class="pdf-h2">ماكروزك اليومية</div>
+    <div class="pdf-h2">احتياجك من السعرات الحرارية والبروتين والكاربوهيدرات</div>
     <div class="pdf-sub">محسوبة على وزنك، طولك، عمرك، وهدفك (${PROGRAM.goalLabel}).</div>
     <div class="pdf-macro-grid">
       <div class="pdf-macro-box"><div class="n">${macros.calories}</div><div class="l">سعرة حرارية</div></div>
@@ -751,12 +808,12 @@ function buildPdfPages(){
       <tr><th>اليوم</th><th>التركيز</th><th>عدد التمارين</th></tr>
       ${rows}
     </table>
-    <div class="pdf-sub" style="margin-top:20px">أيام الأوف: ${userData.offDays.join('، ')}</div>
+    <div class="pdf-sub" style="margin-top:20px">أيام الراحة: ${userData.offDays.join('، ')}</div>
 
     <div class="pdf-intensity-card" style="margin-top:24px">
       <h3>قبل تضغط على أي رابط فيديو 🎥</h3>
       <p>أغلب مقاطع الشرح بالإنجليزي. إذا تبي ترجمة عربية فورية: افتح المقطع بتطبيق يوتيوب ← اضغط ⚙️ (الإعدادات) ← "الترجمة والتسميات التوضيحية" (Captions) ← فعّلها ← اختر "ترجمة تلقائية" (Auto-translate) ← اختر العربي من القائمة.</p>
-      <p style="margin-top:10px">بعض المقاطع فيها موسيقى خلفية. إذا ما تسمع الأغاني، اقفل صوت المقطع وشغّله بدون صوت — التركيز يكون على الحركة نفسها بس.</p>
+      <p style="margin-top:10px">بعض المقاطع فيها موسيقى خلفية. إذا ما تسمع الأغاني، اقفل صوت المقطع وشغّله بدون صوت، والتركيز يكون على الحركة نفسها بس.</p>
     </div>
     <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
   </div>`;
