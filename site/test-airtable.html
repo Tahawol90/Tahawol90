@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>اختبار Airtable</title>
+<style>
+  body{font-family:sans-serif;max-width:480px;margin:60px auto;padding:0 20px;}
+  button{width:100%;padding:14px;font-size:16px;background:#1C84BE;color:#fff;border:none;border-radius:8px;cursor:pointer;}
+  button:disabled{opacity:.5;}
+  #result{margin-top:20px;padding:14px;border-radius:8px;font-size:14px;white-space:pre-wrap;word-break:break-word;}
+  .ok{background:#e6f6ea;color:#1a7a34;}
+  .err{background:#fbe9e7;color:#b3261e;}
+</style>
+</head>
+<body>
+  <h2>اختبار تسجيل طلب (Airtable)</h2>
+  <p>هذي صفحة اختبار بس — ترسل صف تجريبي بأرقام وهمية لجدول Orders، بدون أي علاقة بتاب أو بدفع حقيقي.</p>
+  <button id="btn" onclick="testLog()">أرسل طلب تجريبي</button>
+  <div id="result" style="display:none"></div>
+
+<script>
+async function testLog(){
+  const btn = document.getElementById('btn');
+  const result = document.getElementById('result');
+  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+  result.style.display = 'none';
+
+  const sample = {
+    orderId: 'test_' + Date.now(),
+    name: 'اختبار تجريبي', email: 'test@example.com', phone: '0500000000',
+    gender: 'male', age: '28', height: '178', weight: '80',
+    muscleMass: '', fatMass: '',
+    goal: 'cut', daysPerWeek: '5', lifestyle: 'moderate',
+    calories: 1999, protein: 160, carbs: 150
+  };
+
+  try{
+    const res = await fetch('/.netlify/functions/log-order', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(sample)
+    });
+    const data = await res.json();
+    result.style.display = 'block';
+    if(res.ok && !data.error){
+      result.className = 'ok';
+      result.textContent = '✅ نجح! روح افتح جدول Orders بـAirtable وشوف صف جديد بالأعلى.\n\n' + JSON.stringify(data, null, 2);
+    } else {
+      result.className = 'err';
+      result.textContent = '❌ فشل. هذا تفاصيل الخطأ:\n\n' + JSON.stringify(data, null, 2);
+    }
+  } catch(err){
+    result.style.display = 'block';
+    result.className = 'err';
+    result.textContent = '❌ خطأ بالاتصال: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'أرسل طلب تجريبي';
+  }
+}
+</script>
+</body>
+</html>
