@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>اختبار الإيميل</title>
+<style>
+  body{font-family:sans-serif;max-width:480px;margin:60px auto;padding:0 20px;}
+  input{width:100%;padding:12px;font-size:16px;margin-bottom:12px;box-sizing:border-box;}
+  button{width:100%;padding:14px;font-size:16px;background:#1C84BE;color:#fff;border:none;border-radius:8px;cursor:pointer;}
+  button:disabled{opacity:.5;}
+  #result{margin-top:20px;padding:14px;border-radius:8px;font-size:14px;white-space:pre-wrap;word-break:break-word;}
+  .ok{background:#e6f6ea;color:#1a7a34;}
+  .err{background:#fbe9e7;color:#b3261e;}
+</style>
+</head>
+<body>
+  <h2>اختبار إرسال الإيميل (Resend)</h2>
+  <p>هذي صفحة اختبار بس — تتأكد إن دالة send-email شغالة صح قبل ما نربط تاب. ما لها علاقة بالموقع الأساسي.</p>
+  <input type="email" id="testEmail" placeholder="اكتب إيميلك هنا">
+  <button id="btn" onclick="testSend()">أرسل إيميل تجريبي</button>
+  <div id="result" style="display:none"></div>
+
+<script>
+const TEST_PDF_BASE64 = "JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgNiAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNCAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDYgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MDgwMTExNDc1MyswMCcwMCcpIC9DcmVhdG9yIChhbm9ueW1vdXMpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MDgwMTExNDc1MyswMCcwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0ICh1bnNwZWNpZmllZCkgL1RpdGxlICh1bnRpdGxlZCkgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9Db3VudCAxIC9LaWRzIFsgMyAwIFIgXSAvVHlwZSAvUGFnZXMKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMTI0Cj4+CnN0cmVhbQpHYXBARDBhYE91J0VyaFowcjUoMnJzKHUvS3F1IyUoS2VUdV8yWC1WPzldcHVfJWFkTGEsXXU3MGdbUF0wPzUwdU5ScTBpIytpc0luLExuXkJIJz0kPmdudUUuPjtjJWRsMS11MFNiJ14zXC9QXmg5SWgwJiJKImFWI34+ZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgOAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDA5MiAwMDAwMCBuIAowMDAwMDAwMTk5IDAwMDAwIG4gCjAwMDAwMDA0MDIgMDAwMDAgbiAKMDAwMDAwMDQ3MCAwMDAwMCBuIAowMDAwMDAwNzMxIDAwMDAwIG4gCjAwMDAwMDA3OTAgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8OWU4MzZmNDY3M2NlYWIzZDA2MWE4M2FkZDVjODExZjQ+PDllODM2ZjQ2NzNjZWFiM2QwNjFhODNhZGQ1YzgxMWY0Pl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA1IDAgUgovUm9vdCA0IDAgUgovU2l6ZSA4Cj4+CnN0YXJ0eHJlZgoxMDA0CiUlRU9GCg==";
+
+async function testSend(){
+  const email = document.getElementById('testEmail').value.trim();
+  const btn = document.getElementById('btn');
+  const result = document.getElementById('result');
+  if(!email){ alert('اكتب إيميل أول'); return; }
+
+  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+  result.style.display = 'none';
+
+  try{
+    const res = await fetch('/.netlify/functions/send-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ to: email, name: 'اختبار', pdfBase64: TEST_PDF_BASE64 })
+    });
+    const data = await res.json();
+    result.style.display = 'block';
+    if(res.ok && !data.error){
+      result.className = 'ok';
+      result.textContent = '✅ نجح! تحقق من بريدك (وتحقق من الـSpam لو ما وصل خلال دقيقة).\n\n' + JSON.stringify(data, null, 2);
+    } else {
+      result.className = 'err';
+      result.textContent = '❌ فشل. هذا تفاصيل الخطأ:\n\n' + JSON.stringify(data, null, 2);
+    }
+  } catch(err){
+    result.style.display = 'block';
+    result.className = 'err';
+    result.textContent = '❌ خطأ بالاتصال: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'أرسل إيميل تجريبي';
+  }
+}
+</script>
+</body>
+</html>
