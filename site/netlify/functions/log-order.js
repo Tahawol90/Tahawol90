@@ -24,6 +24,7 @@ exports.handler = async (event) => {
       'Name': body.name || '',
       'Email': body.email || '',
       'Phone': body.phone || '',
+      'Nationality': body.nationality || '',
       'Gender': body.gender === 'male' ? 'Male' : body.gender === 'female' ? 'Female' : '',
       'Age': Number(body.age) || null,
       'Height (cm)': Number(body.height) || null,

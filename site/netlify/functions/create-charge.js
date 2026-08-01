@@ -35,7 +35,7 @@ exports.handler = async (event) => {
         first_name: nameParts[0] || customer.name || '',
         last_name: nameParts.slice(1).join(' ') || '-',
         email: customer.email,
-        phone: { country_code: '966', number: digits }
+        phone: { country_code: customer.countryCode || '966', number: digits }
       };
     }
 

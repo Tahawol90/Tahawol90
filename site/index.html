@@ -38,10 +38,10 @@
   label.qtitle{display:block;font-weight:700;font-size:15px;margin-bottom:12px;}
   .hint{color:var(--muted);font-size:12px;margin-top:-6px;margin-bottom:12px;}
 
-  input.numinput, input.textinput{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  input.numinput, input.textinput, select.textinput{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);
     padding:12px 14px;border-radius:10px;font-size:16px;font-family:'Tajawal',sans-serif;}
   input.numinput{direction:ltr;text-align:right;}
-  input.numinput:focus, input.textinput:focus{outline:2px solid var(--blue);}
+  input.numinput:focus, input.textinput:focus, select.textinput:focus{outline:2px solid var(--blue);}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
   .opt{display:block;position:relative;background:var(--surface2);border:1px solid var(--border);
@@ -289,7 +289,71 @@
       <div class="hint" style="margin-bottom:12px">نرسل عليها نسخة من برنامجك بعد الدفع</div>
       <input type="text" class="textinput" id="custName" placeholder="الاسم الكامل" style="margin-bottom:10px" required>
       <input type="email" class="textinput" id="custEmail" placeholder="البريد الإلكتروني" style="margin-bottom:10px;direction:ltr;text-align:left" required>
-      <input type="text" inputmode="tel" class="numinput" id="custPhone" placeholder="رقم الجوال (05xxxxxxxx)" style="direction:ltr;text-align:left" required>
+      <div style="display:flex;gap:8px">
+        <select id="custCountry" class="textinput" style="flex:0 0 128px;direction:ltr">
+          <optgroup label="افتراضي">
+            <option value="966" data-name="Saudi Arabia">🇸🇦 +966</option>
+          </optgroup>
+          <optgroup label="دول الخليج">
+            <option value="971" data-name="UAE">🇦🇪 +971</option>
+            <option value="965" data-name="Kuwait">🇰🇼 +965</option>
+            <option value="973" data-name="Bahrain">🇧🇭 +973</option>
+            <option value="974" data-name="Qatar">🇶🇦 +974</option>
+            <option value="968" data-name="Oman">🇴🇲 +968</option>
+          </optgroup>
+          <optgroup label="كل العالم">
+            <option value="20" data-name="Egypt">🇪🇬 +20</option>
+            <option value="962" data-name="Jordan">🇯🇴 +962</option>
+            <option value="961" data-name="Lebanon">🇱🇧 +961</option>
+            <option value="963" data-name="Syria">🇸🇾 +963</option>
+            <option value="964" data-name="Iraq">🇮🇶 +964</option>
+            <option value="967" data-name="Yemen">🇾🇪 +967</option>
+            <option value="970" data-name="Palestine">🇵🇸 +970</option>
+            <option value="212" data-name="Morocco">🇲🇦 +212</option>
+            <option value="213" data-name="Algeria">🇩🇿 +213</option>
+            <option value="216" data-name="Tunisia">🇹🇳 +216</option>
+            <option value="218" data-name="Libya">🇱🇾 +218</option>
+            <option value="249" data-name="Sudan">🇸🇩 +249</option>
+            <option value="222" data-name="Mauritania">🇲🇷 +222</option>
+            <option value="252" data-name="Somalia">🇸🇴 +252</option>
+            <option value="253" data-name="Djibouti">🇩🇯 +253</option>
+            <option value="269" data-name="Comoros">🇰🇲 +269</option>
+            <option value="90" data-name="Turkey">🇹🇷 +90</option>
+            <option value="98" data-name="Iran">🇮🇷 +98</option>
+            <option value="92" data-name="Pakistan">🇵🇰 +92</option>
+            <option value="91" data-name="India">🇮🇳 +91</option>
+            <option value="880" data-name="Bangladesh">🇧🇩 +880</option>
+            <option value="62" data-name="Indonesia">🇮🇩 +62</option>
+            <option value="60" data-name="Malaysia">🇲🇾 +60</option>
+            <option value="63" data-name="Philippines">🇵🇭 +63</option>
+            <option value="1" data-name="USA / Canada">🇺🇸 +1</option>
+            <option value="44" data-name="United Kingdom">🇬🇧 +44</option>
+            <option value="33" data-name="France">🇫🇷 +33</option>
+            <option value="49" data-name="Germany">🇩🇪 +49</option>
+            <option value="39" data-name="Italy">🇮🇹 +39</option>
+            <option value="34" data-name="Spain">🇪🇸 +34</option>
+            <option value="31" data-name="Netherlands">🇳🇱 +31</option>
+            <option value="32" data-name="Belgium">🇧🇪 +32</option>
+            <option value="41" data-name="Switzerland">🇨🇭 +41</option>
+            <option value="46" data-name="Sweden">🇸🇪 +46</option>
+            <option value="47" data-name="Norway">🇳🇴 +47</option>
+            <option value="45" data-name="Denmark">🇩🇰 +45</option>
+            <option value="43" data-name="Austria">🇦🇹 +43</option>
+            <option value="7" data-name="Russia">🇷🇺 +7</option>
+            <option value="86" data-name="China">🇨🇳 +86</option>
+            <option value="81" data-name="Japan">🇯🇵 +81</option>
+            <option value="82" data-name="South Korea">🇰🇷 +82</option>
+            <option value="61" data-name="Australia">🇦🇺 +61</option>
+            <option value="64" data-name="New Zealand">🇳🇿 +64</option>
+            <option value="55" data-name="Brazil">🇧🇷 +55</option>
+            <option value="52" data-name="Mexico">🇲🇽 +52</option>
+            <option value="27" data-name="South Africa">🇿🇦 +27</option>
+            <option value="234" data-name="Nigeria">🇳🇬 +234</option>
+            <option value="254" data-name="Kenya">🇰🇪 +254</option>
+          </optgroup>
+        </select>
+        <input type="text" inputmode="tel" class="numinput" id="custPhone" placeholder="5xxxxxxxx" style="flex:1;direction:ltr;text-align:left" required>
+      </div>
     </div>
 
     <button class="download" id="payBtn" onclick="payNow()">💳 ادفع <span id="priceTag">49</span> ريال وحمّل برنامجك</button>
@@ -330,11 +394,14 @@ async function payNow(){
   const name = document.getElementById('custName').value.trim();
   const email = document.getElementById('custEmail').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
+  const countrySelect = document.getElementById('custCountry');
+  const countryCode = countrySelect.value;
+  const countryName = countrySelect.selectedOptions[0].dataset.name;
   if(!name || !email || !phone){
     alert('عبّي الاسم والإيميل ورقم الجوال قبل الدفع');
     return;
   }
-  const customer = { name, email, phone };
+  const customer = { name, email, phone, countryCode, countryName };
 
   const btn = document.getElementById('payBtn');
   btn.disabled = true; btn.textContent = 'جاري تحويلك لصفحة الدفع...';
@@ -368,6 +435,25 @@ function unlockAfterPayment(){
   document.getElementById('payHint').textContent = 'تم تأكيد الدفع ✅. بإمكانك تحميل الملف أكثر من مرة من هذي الصفحة.';
 }
 
+function showUnlockedResults(saved){
+  userData = saved.userData;
+  macros = calcMacros(userData);
+  PROGRAM = buildProgram(userData.goal, +userData.daysPerWeek, userData.offDays, userData.longDays);
+
+  document.getElementById('rCal').textContent = macros.calories;
+  document.getElementById('rProtein').textContent = macros.protein;
+  document.getElementById('rCarb').textContent = macros.carbs;
+  renderWeekPreview(false); // unlocked: show every day in full
+
+  unlockAfterPayment();
+}
+
+// إذا هذا المتصفح/الجهاز نفسه دفع قبل كذا، نعيد فتح نتيجته تلقائياً بدون ما يحتاج يعيد الدفع أو يحتفظ برابط معيّن
+(function restoreIfAlreadyPaid(){
+  const saved = JSON.parse(localStorage.getItem('completedOrder') || 'null');
+  if(saved && saved.userData) showUnlockedResults(saved);
+})();
+
 // runs once on page load: were we just redirected back from Tap's payment page?
 (async function checkPaymentReturn(){
   const params = new URLSearchParams(window.location.search);
@@ -379,16 +465,8 @@ function unlockAfterPayment(){
     if(data.status === 'CAPTURED'){
       const pending = JSON.parse(localStorage.getItem('pendingOrder') || 'null');
       if(pending && pending.userData){
-        userData = pending.userData;
-        macros = calcMacros(userData);
-        PROGRAM = buildProgram(userData.goal, +userData.daysPerWeek, userData.offDays, userData.longDays);
-
-        document.getElementById('rCal').textContent = macros.calories;
-        document.getElementById('rProtein').textContent = macros.protein;
-        document.getElementById('rCarb').textContent = macros.carbs;
-        renderWeekPreview(false); // unlocked: show every day in full
-
-        unlockAfterPayment();
+        showUnlockedResults(pending);
+        localStorage.setItem('completedOrder', JSON.stringify(pending)); // for "come back anytime" on this device
 
         // fire-and-forget: log this order for the merchant's records (doesn't block the UX)
         if(pending.customer){
@@ -398,7 +476,9 @@ function unlockAfterPayment(){
             body: JSON.stringify({
               orderId: pending.orderId,
               name: pending.customer.name, email: pending.customer.email, phone: pending.customer.phone,
+              nationality: pending.customer.countryName,
               gender: userData.gender, age: userData.age, height: userData.height, weight: userData.weight,
+              muscleMass: userData.muscleMass, fatMass: userData.fatMass,
               goal: userData.goal, daysPerWeek: userData.daysPerWeek, lifestyle: userData.lifestyle,
               calories: macros.calories, protein: macros.protein, carbs: macros.carbs
             })
@@ -749,9 +829,9 @@ function generatePlan(){
 }
 
 /* ---------- Build off-screen PDF page markup ---------- */
-function ribbonHtml(litCount){
+function ribbonHtml(litCount, total){
   let html='<div class="pdf-ribbon">';
-  for(let i=0;i<13;i++) html += `<div class="pdf-seg ${i<litCount?'on':''}"></div>`;
+  for(let i=0;i<total;i++) html += `<div class="pdf-seg ${i<litCount?'on':''}"></div>`;
   return html+'</div>';
 }
 
@@ -763,13 +843,12 @@ function buildPdfPages(){
   const totalPages = 3 + nDays + 3; // cover, macros, split + day pages + progress, intensity, tracker
   let pageNum = 0;
   const nextPage = ()=>{ pageNum++; return pageNum; };
-  const ribbonFor = (p)=> Math.round((p/totalPages)*13);
 
   // Page: cover
   let p = nextPage();
   root.innerHTML += `
   <div class="pdf-page">
-    ${ribbonHtml(ribbonFor(p))}
+    ${ribbonHtml(p, totalPages)}
     <div class="pdf-eyebrow">تحوّل ٩٠</div>
     <div class="pdf-h1">تحوّل في ٩٠ يوم</div>
     <div class="pdf-sub">برنامج ${PROGRAM.goalLabel} · ${userData.daysPerWeek} أيام تدريب أسبوعياً · ١٣ أسبوع كامل</div>
@@ -782,7 +861,7 @@ function buildPdfPages(){
   p = nextPage();
   root.innerHTML += `
   <div class="pdf-page">
-    ${ribbonHtml(ribbonFor(p))}
+    ${ribbonHtml(p, totalPages)}
     <div class="pdf-eyebrow">التغذية</div>
     <div class="pdf-h2">احتياجك من السعرات الحرارية والبروتين والكاربوهيدرات</div>
     <div class="pdf-sub">محسوبة على وزنك، طولك، عمرك، وهدفك (${PROGRAM.goalLabel}).</div>
@@ -791,7 +870,7 @@ function buildPdfPages(){
       <div class="pdf-macro-box protein"><div class="n">${macros.protein}</div><div class="l">بروتين (جم)</div></div>
       <div class="pdf-macro-box"><div class="n">${macros.carbs}</div><div class="l">كارب (جم)</div></div>
     </div>
-    <div class="pdf-sub">وزّع البروتين على ٣-٤ وجبات في اليوم، واشرب كمية كافية من الماء.</div>
+    <div class="pdf-sub">اشرب كمية كافية من الماء.</div>
     <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
   </div>`;
 
@@ -801,7 +880,7 @@ function buildPdfPages(){
     <tr><td>${d.weekday || ('يوم '+(i+1))}</td><td>${d.name}</td><td>${d.ex.length} تمارين</td></tr>`).join('');
   root.innerHTML += `
   <div class="pdf-page">
-    ${ribbonHtml(ribbonFor(p))}
+    ${ribbonHtml(p, totalPages)}
     <div class="pdf-eyebrow">الجدول الأسبوعي</div>
     <div class="pdf-h2">تقسيم أيام التدريب</div>
     <table class="pdf-table">
@@ -814,6 +893,10 @@ function buildPdfPages(){
       <h3>قبل تضغط على أي رابط فيديو 🎥</h3>
       <p>أغلب مقاطع الشرح بالإنجليزي. إذا تبي ترجمة عربية فورية: افتح المقطع بتطبيق يوتيوب ← اضغط ⚙️ (الإعدادات) ← "الترجمة والتسميات التوضيحية" (Captions) ← فعّلها ← اختر "ترجمة تلقائية" (Auto-translate) ← اختر العربي من القائمة.</p>
       <p style="margin-top:10px">بعض المقاطع فيها موسيقى خلفية. إذا ما تسمع الأغاني، اقفل صوت المقطع وشغّله بدون صوت، والتركيز يكون على الحركة نفسها بس.</p>
+    </div>
+    <div class="pdf-intensity-card" style="margin-top:16px">
+      <h3>قبل تبدأ برنامجك ⚕️</h3>
+      <p>استشر طبيبك أو مختص قبل البدء بأي برنامج تمريني أو غذائي، خصوصاً لو عندك حالة صحية مزمنة، إصابة سابقة، أو أي ظرف صحي خاص. توقف فوراً عن أي تمرين يسبب لك ألم غير طبيعي أو دوخة أو ضيق تنفّس، وراجع مختص. هذا البرنامج معلومات عامة مبنية على بياناتك، وما يغني عن استشارة طبية مخصصة لحالتك.</p>
     </div>
     <div class="pdf-footer"><span>برنامجك الشخصي</span><span>صفحة ${p}</span></div>
   </div>`;
@@ -831,7 +914,7 @@ function buildPdfPages(){
       </div>`).join('');
     root.innerHTML += `
     <div class="pdf-page">
-      ${ribbonHtml(ribbonFor(p))}
+      ${ribbonHtml(p, totalPages)}
       <div class="pdf-day-badge">${d.weekday || ('يوم '+(i+1))}</div>
       <div class="pdf-h2">${d.name}</div>
       ${exRows}
@@ -845,7 +928,7 @@ function buildPdfPages(){
     <div class="pdf-phase"><h3>${ph.range}</h3><p>${ph.note}</p></div>`).join('');
   root.innerHTML += `
   <div class="pdf-page">
-    ${ribbonHtml(ribbonFor(p))}
+    ${ribbonHtml(p, totalPages)}
     <div class="pdf-eyebrow">التقدّم</div>
     <div class="pdf-h2">خطة ١٣ أسبوع</div>
     ${phaseHtml}
@@ -857,7 +940,7 @@ function buildPdfPages(){
   const guide = INTENSITY_GUIDE[userData.goal] || INTENSITY_GUIDE.maintain;
   root.innerHTML += `
   <div class="pdf-page">
-    ${ribbonHtml(ribbonFor(p))}
+    ${ribbonHtml(p, totalPages)}
     <div class="pdf-eyebrow">المجهود</div>
     <div class="pdf-h2">وش يعني "شدة صح" بجلستك؟</div>
     <div class="pdf-intensity-card">
@@ -885,7 +968,7 @@ function buildPdfPages(){
   }
   root.innerHTML += `
   <div class="pdf-page">
-    ${ribbonHtml(13)}
+    ${ribbonHtml(totalPages, totalPages)}
     <div class="pdf-eyebrow">تتبّع الالتزام</div>
     <div class="pdf-h2">سجل الـ١٣ أسبوع</div>
     <table class="pdf-table pdf-tracker-table">
